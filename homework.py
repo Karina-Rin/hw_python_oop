@@ -45,6 +45,8 @@ class Training:
 
     LEN_STEP = 0.65  # при плавании 1.38
     M_IN_KM = 1000  # константа для перевода значений из метров в километры
+    coeff_calorie_1 = 18
+    coeff_calorie_2 = 20
 
     def __init__(
         self,
@@ -70,10 +72,9 @@ class Training:
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         # spent_calories = (18 * средняя_скорость - 20) * вес_спортсмена / M_IN_KM * время_тренировки_в_минутах
-        coeff_calorie_1 = 18
-        coeff_calorie_2 = 20
+
         spent_calories = (
-            (coeff_calorie_1 * self.get_mean_speed - coeff_calorie_2)
+            (self.coeff_calorie_1 * self.get_mean_speed - self.coeff_calorie_2)
             * self.weight
             / self.M_IN_KM
             * self.duration
@@ -96,6 +97,10 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
 
+    coeff_calorie_1 = 18
+    coeff_calorie_2 = 20
+    M_IN_KM = 1000
+
     def __init__(
         self,
         action: int,
@@ -105,13 +110,14 @@ class Running(Training):
         super().__init__(action, duration, weight)
 
     def get_spent_calories(self) -> float:
-        coeff_calorie_1 = 18
-        coeff_calorie_2 = 20
-        M_IN_KM = 1000  # константа для перевода значений из метров в километры
+
         spent_calories = (
-            (coeff_calorie_1 * self.get_mean_speed() - coeff_calorie_2)
+            (
+                self.coeff_calorie_1 * self.get_mean_speed()
+                - self.coeff_calorie_2
+            )
             * self.weight
-            / M_IN_KM
+            / self.M_IN_KM
             * (self.duration * 60)
         )
         return spent_calories
@@ -119,6 +125,9 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
+
+    coeff_calorie_1 = 0.035
+    coeff_calorie_2 = 0.029
 
     def __init__(
         self,
@@ -131,12 +140,9 @@ class SportsWalking(Training):
         self.height = height
 
     def get_spent_calories(self) -> float:
-        coeff_calorie_1 = 0.035
-        coeff_calorie_2 = 0.029
-
-        spent_calories = coeff_calorie_1 * self.weight + (
+        spent_calories = self.coeff_calorie_1 * self.weight + (
             self.get_mean_speed() ** 2 // self.height
-        ) * coeff_calorie_2 * self.weight * (self.duration * 60)
+        ) * self.coeff_calorie_2 * self.weight * (self.duration * 60)
         return spent_calories
 
 
@@ -147,6 +153,7 @@ class Swimming(Training):
     # Один шаг — это 0.65 метра, один гребок при плавании — 1.38 метра.
     LEN_STEP = 1.38
     coeff_calorie_1 = 1.1
+    M_IN_KM = 1000
 
     def __init__(
         self,
@@ -162,9 +169,9 @@ class Swimming(Training):
 
     def get_mean_speed(self) -> float:
         # длина_бассейна * count_pool / M_IN_KM / время_тренировки = расчёт средней скорости
-        M_IN_KM = 1000  # константа для перевода значений из метров в километры
+
         mean_speed = (
-            self.length_pool * self.count_pool / M_IN_KM / self.duration
+            self.length_pool * self.count_pool / self.M_IN_KM / self.duration
         )
         return mean_speed
 
