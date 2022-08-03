@@ -1,33 +1,28 @@
 from typing import Dict
+from dataclasses import dataclass
 
 
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
-    def __init__(  # создает объекты этого класса
-        self,
-        training_type: str,  # имя класса тренировки
-        duration: float,  # длительность тренировки в часах
-        distance: float,  # дистанция в километрах
-        speed: float,  # cредняя скорость, с которой двигался пользователь
-        calories: float,  # количество килокалорий
-    ) -> None:
-        # свойства класса:
-        # Числовые значения должны округляться при
-        # выводе до тысячных долей (до третьего знака после запятой)
-        self.training_type = training_type
-        self.duration = f"{duration:.3f}"
-        self.distance = f"{distance:.3f}"
-        self.speed = f"{speed:.3f}"
-        self.calories = f"{calories:.3f}"
+    # создаем объекты этого класса и указываем свойства
+    training_type: str  # имя класса тренировки
+    duration: float  # длительность тренировки в часах
+    distance: float  # дистанция в километрах
+    speed: float  # cредняя скорость, с которой двигался пользователь
+    calories: float  # количество килокалорий
+
+    # Числовые значения должны округляться при
+    # выводе до тысячных долей (до третьего знака после запятой)
 
     def get_message(self) -> str:  # возвращает строку сообщения
         return (
             f"Тип тренировки: {self.training_type}; "
-            f"Длительность: {self.duration} ч.; "
-            f"Дистанция: {self.distance} км; "
-            f"Ср. скорость: {self.speed} км/ч; "
-            f"Потрачено ккал: {self.calories}."
+            f"Длительность: {self.duration:.3f} ч.; "
+            f"Дистанция: {self.distance:.3f} км; "
+            f"Ср. скорость: {self.speed:.3f} км/ч; "
+            f"Потрачено ккал: {self.calories:.3f}."
         )
 
 
@@ -37,8 +32,8 @@ class Training:
     LEN_STEP = 0.65  # один шаг в метрах
     M_IN_KM = 1000  # константа для перевода значений из метров в километры
     H_IN_MIN = 60  # константа для перевода значений из часов в минуты
-    coeff_calorie_1 = 18
-    coeff_calorie_2 = 20
+    COEFF_CALORIE_1 = 18
+    COEFF_CALORIE_2 = 20
 
     def __init__(
         self,
@@ -53,6 +48,7 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
+
         dist_km = self.action * self.LEN_STEP / self.M_IN_KM
         return dist_km
 
@@ -66,15 +62,9 @@ class Training:
         """Получить количество затраченных калорий."""
         # spent_calories = (18 * средняя_скорость - 20)
         # * вес_спортсмена / M_IN_KM * время_тренировки_в_минутах
-
-        spent_calories = (
-            (self.coeff_calorie_1 * self.get_mean_speed - self.coeff_calorie_2)
-            * self.weight
-            / self.M_IN_KM
-            * self.duration
-            * self.H_IN_MIN
+        raise NotImplementedError(  # метод нужно реализовать в наследнике
+            "Определите get_spent_calories в %s." % (self.__class__.__name__)
         )
-        return spent_calories
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -91,11 +81,6 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
 
-    coeff_calorie_1 = 18
-    coeff_calorie_2 = 20
-    M_IN_KM = 1000
-    H_IN_MIN = 60
-
     def __init__(
         self,
         action: int,
@@ -108,8 +93,8 @@ class Running(Training):
 
         spent_calories = (
             (
-                self.coeff_calorie_1 * self.get_mean_speed()
-                - self.coeff_calorie_2
+                self.COEFF_CALORIE_1 * self.get_mean_speed()
+                - self.COEFF_CALORIE_2
             )
             * self.weight
             / self.M_IN_KM
@@ -121,10 +106,9 @@ class Running(Training):
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
 
-    coeff_calorie_1 = 0.035
-    coeff_calorie_2 = 0.029
-    coeff_calorie_3 = 2
-    H_IN_MIN = 60
+    COEFF_CALORIE_1 = 0.035
+    COEFF_CALORIE_2 = 0.029
+    COEFF_CALORIE_3 = 2
 
     def __init__(
         self,
@@ -141,9 +125,9 @@ class SportsWalking(Training):
         # * 0.029 * вес) * время_тренировки_в_минутах
 
         spent_calories = (
-            self.coeff_calorie_1 * self.weight
-            + (self.get_mean_speed() ** self.coeff_calorie_3 // self.height)
-            * self.coeff_calorie_2
+            self.COEFF_CALORIE_1 * self.weight
+            + (self.get_mean_speed() ** self.COEFF_CALORIE_3 // self.height)
+            * self.COEFF_CALORIE_2
             * self.weight
         ) * (self.duration * self.H_IN_MIN)
         return spent_calories
@@ -154,10 +138,10 @@ class Swimming(Training):
 
     # Чтобы определить дистанцию, которую преодолел спортсмен,
     # нужно число шагов или гребков, переданное в action, перевести в километры
+
     LEN_STEP = 1.38  # один гребок при плавании в метрах
-    coeff_calorie_1 = 1.1
-    coeff_calorie_2 = 2
-    M_IN_KM = 1000
+    COEFF_CALORIE_1 = 1.1
+    COEFF_CALORIE_2 = 2
 
     def __init__(
         self,
@@ -183,8 +167,8 @@ class Swimming(Training):
     def get_spent_calories(self) -> float:
         # (средняя_скорость + 1.1) * 2 * вес = расчёт израсходованных калорий
         spent_calories = (
-            (self.get_mean_speed() + self.coeff_calorie_1)
-            * self.coeff_calorie_2
+            (self.get_mean_speed() + self.COEFF_CALORIE_1)
+            * self.COEFF_CALORIE_2
             * self.weight
         )
         return spent_calories
