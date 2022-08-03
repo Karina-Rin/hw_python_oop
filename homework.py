@@ -11,24 +11,15 @@ class InfoMessage:
         duration: float,  # длительность тренировки в часах
         distance: float,  # дистанция в километрах, которую преодолел пользователь за время тренировки
         speed: float,  # cредняя скорость, с которой двигался пользователь
-        calories: float,
+        calories: float,  # количество килокалорий, которое израсходовал пользователь за время тренировки
     ) -> None:
         # свойства класса:
+        # Числовые значения должны округляться при выводе до тысячных долей (до третьего знака после запятой)
         self.training_type = training_type
         self.duration = f"{duration:.3f}"
         self.distance = f"{distance:.3f}"
         self.speed = f"{speed:.3f}"
         self.calories = f"{calories:.3f}"
-
-    # Числовые значения должны округляться при выводе до тысячных долей
-    # (до третьего знака после запятой
-
-    # Информационное сообщение должно включать такую информацию:
-    # тип тренировки (бег, ходьба или плавание);
-    # длительность тренировки
-    # дистанция, которую преодолел пользователь, в километрах;
-    # среднюю скорость на дистанции, в км/ч;
-    # расход энергии, в килокалориях.
 
     def get_message(self) -> str:  # возвращает строку сообщения
         return (
@@ -43,8 +34,9 @@ class InfoMessage:
 class Training:
     """Базовый класс тренировки."""
 
-    LEN_STEP = 0.65  # при плавании 1.38
+    LEN_STEP = 0.65  # один шаг в метрах
     M_IN_KM = 1000  # константа для перевода значений из метров в километры
+    H_IN_MIN = 60  # константа для перевода значений из часов в минуты
     coeff_calorie_1 = 18
     coeff_calorie_2 = 20
 
@@ -78,7 +70,7 @@ class Training:
             * self.weight
             / self.M_IN_KM
             * self.duration
-            * 60
+            * self.H_IN_MIN
         )
         return spent_calories
 
@@ -100,6 +92,7 @@ class Running(Training):
     coeff_calorie_1 = 18
     coeff_calorie_2 = 20
     M_IN_KM = 1000
+    H_IN_MIN = 60
 
     def __init__(
         self,
@@ -118,7 +111,7 @@ class Running(Training):
             )
             * self.weight
             / self.M_IN_KM
-            * (self.duration * 60)
+            * (self.duration * self.H_IN_MIN)
         )
         return spent_calories
 
@@ -128,6 +121,8 @@ class SportsWalking(Training):
 
     coeff_calorie_1 = 0.035
     coeff_calorie_2 = 0.029
+    coeff_calorie_3 = 2
+    H_IN_MIN = 60
 
     def __init__(
         self,
@@ -140,9 +135,14 @@ class SportsWalking(Training):
         self.height = height
 
     def get_spent_calories(self) -> float:
-        spent_calories = self.coeff_calorie_1 * self.weight + (
-            self.get_mean_speed() ** 2 // self.height
-        ) * self.coeff_calorie_2 * self.weight * (self.duration * 60)
+        # (0.035 * вес + (средняя_скорость**2 // рост) * 0.029 * вес) * время_тренировки_в_минутах
+
+        spent_calories = (
+            self.coeff_calorie_1 * self.weight
+            + (self.get_mean_speed() ** self.coeff_calorie_3 // self.height)
+            * self.coeff_calorie_2
+            * self.weight
+        ) * (self.duration * self.H_IN_MIN)
         return spent_calories
 
 
@@ -150,9 +150,9 @@ class Swimming(Training):
     """Тренировка: плавание."""
 
     # Чтобы определить дистанцию, которую преодолел спортсмен, нужно число шагов или гребков, переданное в action, перевести в километры.
-    # Один шаг — это 0.65 метра, один гребок при плавании — 1.38 метра.
-    LEN_STEP = 1.38
+    LEN_STEP = 1.38  # один гребок при плавании в метрах
     coeff_calorie_1 = 1.1
+    coeff_calorie_2 = 2
     M_IN_KM = 1000
 
     def __init__(
@@ -178,14 +178,16 @@ class Swimming(Training):
     def get_spent_calories(self) -> float:
         # (средняя_скорость + 1.1) * 2 * вес = расчёт израсходованных калорий
         spent_calories = (
-            (self.get_mean_speed() + self.coeff_calorie_1) * 2 * self.weight
+            (self.get_mean_speed() + self.coeff_calorie_1)
+            * self.coeff_calorie_2
+            * self.weight
         )
         return spent_calories
 
 
 def read_package(workout_type: str, data: dict) -> Training:
     """Прочитать данные полученные от датчиков."""
-    types_of_workout: Dict[str, type] = {
+    types_of_workout: Dict[str, type] = {  # словарь
         "SWM": Swimming,
         "RUN": Running,
         "WLK": SportsWalking,
