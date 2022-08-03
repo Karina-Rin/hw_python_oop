@@ -1,4 +1,3 @@
-from unicodedata import name
 from typing import Dict
 
 
@@ -9,12 +8,13 @@ class InfoMessage:
         self,
         training_type: str,  # имя класса тренировки
         duration: float,  # длительность тренировки в часах
-        distance: float,  # дистанция в километрах, которую преодолел пользователь за время тренировки
+        distance: float,  # дистанция в километрах
         speed: float,  # cредняя скорость, с которой двигался пользователь
-        calories: float,  # количество килокалорий, которое израсходовал пользователь за время тренировки
+        calories: float,  # количество килокалорий
     ) -> None:
         # свойства класса:
-        # Числовые значения должны округляться при выводе до тысячных долей (до третьего знака после запятой)
+        # Числовые значения должны округляться при
+        # выводе до тысячных долей (до третьего знака после запятой)
         self.training_type = training_type
         self.duration = f"{duration:.3f}"
         self.distance = f"{distance:.3f}"
@@ -42,7 +42,8 @@ class Training:
 
     def __init__(
         self,
-        action: int,  # число шагов при ходьбе и беге либо гребков — при плавании
+        action: int,  # число шагов при ходьбе
+        # и беге либо гребков — при плавании
         duration: float,
         weight: float,
     ) -> None:
@@ -63,7 +64,8 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        # spent_calories = (18 * средняя_скорость - 20) * вес_спортсмена / M_IN_KM * время_тренировки_в_минутах
+        # spent_calories = (18 * средняя_скорость - 20)
+        # * вес_спортсмена / M_IN_KM * время_тренировки_в_минутах
 
         spent_calories = (
             (self.coeff_calorie_1 * self.get_mean_speed - self.coeff_calorie_2)
@@ -135,7 +137,8 @@ class SportsWalking(Training):
         self.height = height
 
     def get_spent_calories(self) -> float:
-        # (0.035 * вес + (средняя_скорость**2 // рост) * 0.029 * вес) * время_тренировки_в_минутах
+        # (0.035 * вес + (средняя_скорость**2 // рост)
+        # * 0.029 * вес) * время_тренировки_в_минутах
 
         spent_calories = (
             self.coeff_calorie_1 * self.weight
@@ -149,7 +152,8 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
 
-    # Чтобы определить дистанцию, которую преодолел спортсмен, нужно число шагов или гребков, переданное в action, перевести в километры.
+    # Чтобы определить дистанцию, которую преодолел спортсмен,
+    # нужно число шагов или гребков, переданное в action, перевести в километры
     LEN_STEP = 1.38  # один гребок при плавании в метрах
     coeff_calorie_1 = 1.1
     coeff_calorie_2 = 2
@@ -168,7 +172,8 @@ class Swimming(Training):
         self.count_pool = count_pool
 
     def get_mean_speed(self) -> float:
-        # длина_бассейна * count_pool / M_IN_KM / время_тренировки = расчёт средней скорости
+        # длина_бассейна * count_pool / M_IN_KM
+        # / время_тренировки = расчёт средней скорости
 
         mean_speed = (
             self.length_pool * self.count_pool / self.M_IN_KM / self.duration
