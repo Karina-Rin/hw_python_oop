@@ -20,7 +20,7 @@
 ### Работа с репозиторим
 1. Клонируем репозиторий на локальный компьютер:
 ```
-https://github.com/Karina-Rin/hw_python_oop.git
+git clone https://github.com/Karina-Rin/hw_python_oop.git
 ```
 2. Переходим в терминале в папку с проектом:
 ```
